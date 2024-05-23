@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  consumer2-app:
+    build: ./rabbitConsumer2
+    environment:
+      - RABBIT_HOST_ADDRESS=rabbitmq
+    ports:
+      - 8082:8082
+    depends_on:
+      - rabbitmq
+    networks:
+      - rabbit-net
+    
+  consumer3-app:
+    build: ./rabbitConsumer3
+    environment:
+      - RABBIT_HOST_ADDRESS=rabbitmq
+    ports:
+      - 8083:8083
+    depends_on:
+      - rabbitmq
+    networks:
+      - rabbit-net
+      
+  consumer-producer-app:
+    build: ./RabbitRedirect
+    environment:
+      - RABBIT_HOST_ADDRESS=rabbitmq
+    ports:
+      - 8084:8084
+    depends_on:
+      - rabbitmq
+    networks:
+      - rabbit-net
+      
+  producer-app:
+    build: ./rabbitProducer
+    environment:
+      - RABBIT_HOST_ADDRESS=rabbitmq
+    ports:
+      - 8081:8081
+    depends_on:
+      - rabbitmq
+    networks:
+      - rabbit-net
+      
+  rabbitmq:
+    image: rabbitmq:management
+    # environment:
+      # - RABBITMQ_DEFAULT_USER=tshamelov
+      # - RABBITMQ_DEFAULT_PASS=tshamelov
+    ports:
+        - "5672:5672"
+        - "15672:15672"
+    volumes:
+        - ./rabbit-conf/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+        - ./rabbit-conf/rabbitmq-defs.json:/etc/rabbitmq/rabbitmq-defs.json
+    networks:
+      - rabbit-net
+        
+networks:
+  rabbit-net:
+    driver: bridge
+
